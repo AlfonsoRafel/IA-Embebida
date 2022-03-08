@@ -1,0 +1,14 @@
+.ipynb_checkpoints/
+.pytest_cache/
+__pycache__/
+.DS_Store
+.idea/
+venv/
+*.csv
+Informes/
+data/
+Encuentros/
+experiments/
+.vscode/
+*.pdf
+
