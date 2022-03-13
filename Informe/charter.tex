@@ -47,7 +47,8 @@
 }
 \pagebreak
 
-
+\section{Aclaración}
+Para más detalle acerca del uso del código, por favor referirse al ReadMe del repositorio del proyecto en GitHub.
 
 
 \section{Motivación}
@@ -120,6 +121,7 @@ Como preprocesamiento se partió de la solución propuesta durante el cursado, r
 
 Dado que la idea original de esta solución fue implementarla en un sistema embebido, entonces se utilizan modelos de Machine Learning relativamente simples, tales como Decision Tree, MLP y Random Forest. Para una configuración inicial de hiperparámetros se obtuvo un valor máximo de 70.4\%. Se realizó una prueba con PCA e ICA, pero se necesitaban de una cantidad de parámetros mucho mayor para lograr explicar la variabilidad de los datos.
 Entendiendo la importancia que tuvieron los picos sobre la envolvente en la detección de eventos, se propusieron y pusieron a pruebas distintas variables para agregar a los modelos, tales como la potencia espectral, la energía de la señal, el valor máximo y medio de los picos, entre otras. Finalmente se agregó a la lista de variables el máximo ancho de las campanas de la envolvente, logrando así una mejora de un 2\% en el mejor modelo, alcanzando un 71.8\%.
+sss
 \begin{figure}[H]
 	\centering 
 	\includegraphics[width=0.5\textwidth, scale=0.5]{./Figuras/modelfirst.png}
@@ -134,11 +136,29 @@ Finalmente se balancea el set de entrenamiento sobre el mejor modelo y además s
 	\label{fig:second}
 \end{figure}
 De la Figura anterior se puede observar como el balanceo genera una gran mejora en la clasificación de la clase de arranque a costa de un leve empeoramiento de las demás clases.
+Finalmente se testea el conjunto modelo, es decir detector de eventos my clasificador sobre las señales de audio usadas para la clasificación. Promediando sobre los tres audios se logró un balanced accuracy de 61.7\%, lo que nos demuestra como el error del detector se propaga a la hora de la detección. 
  
 \subsection{Actividad Alimentaria}
+Para el entrenamiento del bloque que clasifica la actividad alimentaria se utilizó una señal de audio de aproxidamente 6 horas, en donde están etiquetadas las porciones de audio. 
+En pos de generar el dataset de entrenamiento, se particionó la señal de audio en secciones de 3 minutos, sobre las cuales se aplicó la detección de eventos y posterior clasificación.
+Una vez procesada cada sección se calculaban 4 parámetros y se anexaban a una tabla. Se propusieron los siguientes parámetros:
 
-	
+\begin{itemize}
+	\item Cantidad de eventos masticatorios
+	\item Porcentaje de masticación
+	\item Porcentaje de arranque
+	\item Porcentaje de arranque-masticación
+\end{itemize}
 
+\subsection{Próximos Pasos}
+El desafío planteado revistió de una interesante dificultad, no sólo en lo que respecta al procesamiento y extracción de parámetros sobre señales de audio, sino también en el armado de un flujo de proceso completo. Es así que quedaron algunas ideas sin lograr implementarse, las cuales se incluyen como próximos pasos:
+\begin{itemize}
+	\item Entrenamiento conjunto: entrenamiento y validación del modelo conjunto de detección y clasicación.
+	\item Uso de redes neuronales sobre las señales de audio.
+	\item Uso de redes convolucionales sobre los imágenes de las curvas de las señales.
+	\item División de la clase masticación en dos subclases.
+	\item Uso de XAI (Explainable AI) para detectar cuales son las características faltantes de los errores de clasificación.
+\end{itemize}
 
 
 

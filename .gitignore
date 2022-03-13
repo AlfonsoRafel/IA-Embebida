@@ -5,10 +5,11 @@ __pycache__/
 .idea/
 venv/
 *.csv
-Informes/
+Informe/
 data/
 Encuentros/
 experiments/
 .vscode/
 *.pdf
-
+*.wav
+*.mp3

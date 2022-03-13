@@ -22,36 +22,63 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from imblearn.pipeline import make_pipeline as imb_make_pipeline
 from imblearn.under_sampling import RandomUnderSampler
+import joblib
+
+
+
+def run(data, event_list, fs, t):
+    # load model
+    model_path = './models/model.pkl'
+    expdir = './predict'
+    model = joblib.load('model.pkl')
+    # load data
+    output_list = []
+    for event in range(0, len(event_list)):
+        start = event_list[event][0]
+        end =  event_list[event][1]
+        #data = data / np.iinfo(data.dtype).max
+        data_raw = data[np.where((t<end) & (t>=start))] 
+        
+        #data = data_raw.astype(np.float32)
+        X = extract_features(data_raw, fs)
+        X = np.array(X)
+        X = X.reshape(1, len(X))
+        Y = model.predict(X)
+        output_list.append(Y[0])
+    return output_list
 
 def predict(datadir):
     # load model
-    model_path = r'C:\Users\alfon\Desktop\Projects (On Going)\02. Posgrado CEIA\08. Bimestre VIII\Inteligencia Artificial Embebida\experiments\model_pkl'
-    expdir = r'.\predict'
-    model = pickle.load(open(model_path, 'rb'))
+    model_path = './models/model.pkl'
+    expdir = './predict'
+    model = joblib.load('model.pkl')
     # load data
     filenames = [f for f in listdir(datadir) if (isfile(join(datadir, f)) and (f.endswith('.wav')))]
     output_list = []
     for file in filenames:
         fs, data_raw = wavfile.read(join(datadir, file), False)
-        data = data_raw.astype(np.float32)
+        data = data_raw / np.iinfo(data_raw.dtype).max
+        #data = data_raw.astype(np.float32)
         X = extract_features(data, fs)
         X = np.array(X)
         X = X.reshape(1, len(X))
         Y = model.predict(X)
         output_list.append(Y[0])
-        
+
+    print('Predictions made!')   
     columns = ['Filename','Class']
     output_pd = pd.DataFrame(columns=columns)
     output_pd['Filename'] = filenames
     output_pd['Class'] = output_list
-    output_pd.to_csv(join(expdir, 'out_classification.csv'), index=False)  
+    output_pd.to_csv(join(expdir, 'classification/out.csv'), index=False) 
+    print('Classification File Saved')    
     
         
 
 def train(datadir):
-    expdir = datadir.replace('data', 'experiments')
-    filedir = join('r',datadir, 'train_labels.csv')
-    audiodir = join('r',datadir,'audios')
+    expdir = './models'
+    filedir = join(datadir, 'train_labels.csv')
+    audiodir = join(datadir,'audios')
 
     train_dataset = WaveDataset(audiodir, filedir)
     print('Dataset Loaded')
@@ -96,22 +123,23 @@ def train(datadir):
         print(f"{sc:.3f} balanced accuracy")
         
         if sc > sc_best:
-            model_best = model
+            model_best = pipeline
+            print('Best Model Selected: ', model_name)
+            sc_best = sc
     
         # Reporte de clasificación
-        report = classification_report(y_optim,
-                               y_pred_optim, 
-                               target_names=["bite", "chew", "chewbite"])
+        # report = classification_report(y_optim,
+        #                        y_pred_optim, 
+        #                        target_names=["bite", "chew", "chewbite"])
 
-        print(report)
-        cm = confusion_matrix(y_optim, y_pred_optim)
-        ConfusionMatrixDisplay(cm,
-                       display_labels=["bite", "chew", "chewbite"]).plot()
-        plt.grid(False)
-        plt.show()
+        # print(report)
+        # cm = confusion_matrix(y_optim, y_pred_optim)
+        # ConfusionMatrixDisplay(cm,
+        #                display_labels=["bite", "chew", "chewbite"]).plot()
+        # plt.grid(False)
+        # plt.show()
     
-    with open(join('r', expdir,'model_pkl'), 'wb') as files:
-        pickle.dump(model_best, files)
+    joblib.dump(model_best, 'model.pkl')
 
 
 def main():
@@ -123,7 +151,7 @@ def main():
         help='Data root to be processed')
     args = arg_parser.parse_args()
     
-    train(args.datadir)
+    predict(args.datadir)
 
 
 if __name__ == '__main__':

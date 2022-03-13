@@ -122,7 +122,7 @@
 
 \lhead{\includegraphics[width=4cm]{./Figuras/logoFIUBA.png}}
 \chead{}
-\rhead{\normalsize \textrm{Trabajo Final - Intro a Sistemas Embebidos \\\degreename}}
+\rhead{\normalsize \textrm{Trabajo Final - IA Embebida \\\degreename}}
 \lfoot{ }
 \cfoot{\normalsize Página \thepage \hspace{1px} de \pageref{LastPage}}
 \rfoot{}

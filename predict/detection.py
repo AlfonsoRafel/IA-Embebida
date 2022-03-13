@@ -67,7 +67,6 @@ def filter_event(data, fs):
     return data_filt
 
 def get_events(data, mean, std, t, Ts, N):
-    #peaks, properties = find_peaks(data, distance = 7500, prominence=0.01, width=1000)
     peaks, properties = find_peaks(data, distance = 15000, prominence=0.01, width=2000)
     event_list = []
     peaks_time = peaks/len(t) * (Ts*N)
@@ -105,9 +104,6 @@ def cal_IoU(event_list, data_labels, t):
     ratio = np.round(inter/union, 2) * 100
     print(f"{ratio:.3f} IoU")
   
-
-        
-
 def save_event(event_list, data, fs, t):
     savedir = './predict/event_detection'
     for event in range(0, len(event_list)):
@@ -116,28 +112,7 @@ def save_event(event_list, data, fs, t):
         split_data = data[np.where((t<end) & (t>=start))] 
         wavfile.write(join(savedir, str(event) + '.wav'), fs, split_data)
 
-
-def run(data_raw, fs):
-    Ts = 1/fs
-    N = data_raw.shape[0]  
-    t = np.arange(0,Ts*N,Ts)
-    data = data_raw.astype(np.float32)
-    data = normalization(data)
-    data_filt_2K = filter_4000hz(data, fs)
-    data_filt = filter_event(data_filt_2K, fs)
-    
-    # load json
-    json_file = './models/detection.json'
-    with open(json_file, 'r') as config_file:
-        try:
-            config_dict = json.load(config_file)
-        except:
-            Pass
-    mean = statistics.mean(config_dict['Mean'])
-    std = statistics.stdev(config_dict['Std'])     
-    event_list = get_events(data_filt*10, mean, std, t , Ts, N) 
-    print('Events detected and saved')     
-    return event_list, data_filt
+        
   
   
   
