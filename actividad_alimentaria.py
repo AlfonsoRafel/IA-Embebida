@@ -5,6 +5,17 @@ import librosa
 import numpy as np
 from os.path import join
 import pandas as pd
+from sklearn.neural_network import MLPClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import make_pipeline
+
+from sklearn.metrics import classification_report
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import balanced_accuracy_score
+import joblib
 
 def generate_dataset(datadir):
     file = 'actividad_alimentaria.wav'
@@ -70,13 +81,50 @@ def generate_dataset(datadir):
     df.to_csv(join('./predict/act_alimentaria', 'out_clas_alim.csv'), index=False) 
     print('File generated')
 
-def predict():
-    return NotImplemented
+
+def run(df):
+    model = joblib.load('./models/model_act.pkl')
+
+    for i in range(0, len(df.events)):
+        #data = data_raw.astype(np.float32)
+        X = np.array(df[['events' , 'perc_bite', 'perc_chew' , 'perc_chewbite']])
+        X = X.reshape(1, len(X))
+        Y = model.predict(X)
+        df['class'][i] = Y[0]
+    return df
         
 
 def train(datadir):
-    
-    return NotImplemented
+    df = pd.read_csv('./predict/act_alimentaria/out_clas_alim.csv', sep=',', header=0)
+    df['class'].replace(['Rumination', 'Grazing', 'End', 'noclass'], [0, 1, 2, 3], inplace= True)
+    df = df.drop(df[df['class'] == 3].index)
+    df = df.drop(df[df['class'] == 2].index)
+    X_train = df[['events' , 'perc_bite', 'perc_chew' , 'perc_chewbite']]
+    y_train = df['class']
+    # Genera una nueva particion desde el conjunto de train
+    X_train_opt, X_optim, y_train_opt, y_optim = train_test_split(X_train,
+                                                                y_train,
+                                                                test_size=0.33,
+                                                                random_state=42)
+
+        
+    # Se define el modelo
+    model = make_pipeline(
+                            StandardScaler(),
+                            #DecisionTreeClassifier(max_depth=5, min_samples_leaf=1),
+                            #MLPClassifier(random_state=42, max_iter=2000, early_stopping=False, n_iter_no_change=100)
+                            RandomForestClassifier(n_estimators=1, random_state=42)
+                        )
+
+    # Se entrena el modelo
+    model.fit(X_train_opt, y_train_opt)
+
+    # Se prueba con la partición de optimización
+    y_pred_optim = model.predict(X_optim)
+
+    sc = balanced_accuracy_score(y_optim, y_pred_optim)
+    print(f"{sc:.3f} balanced accuracy")
+    joblib.dump(model, './models/model_act.pkl')
 
 
 def main():
@@ -88,7 +136,7 @@ def main():
         help='Data root to be processed')
     args = arg_parser.parse_args()
     
-    generate_dataset(args.datadir)
+    train(args.datadir)
 
 
 if __name__ == '__main__':

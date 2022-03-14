@@ -48,7 +48,7 @@
 \pagebreak
 
 \section{Aclaración}
-Para más detalle acerca del uso del código, por favor referirse al ReadMe del repositorio del proyecto en GitHub.
+Para más detalle acerca del uso del código, por favor referirse al ReadMe del repositorio del proyecto en GitHub: \url{https://github.com/AlfonsoRafel/IA-Embebida}.
 
 
 \section{Motivación}
@@ -149,6 +149,14 @@ Una vez procesada cada sección se calculaban 4 parámetros y se anexaban a una 
 	\item Porcentaje de arranque
 	\item Porcentaje de arranque-masticación
 \end{itemize}
+Previo al entrenamiento se prescindió de las secciones cuyo comienzo no perteneciese a un rango etiquetado como rumia o pastoreo. Se entrenó un modelo de Random Forest con dos clases de salida y se obtuvo un 100\% de balanced accuracy. A continuación se observa la matriz de confusión:
+\begin{figure}[H]
+	\centering 
+	\includegraphics[width=0.5\textwidth, scale=0.5]{./Figuras/modelact.png}
+	\caption{Matriz de Confusión actividad alimentaria}
+	\label{fig:act}
+\end{figure}
+A priori podríamos pensar que el modelo sufre de overfitting, pero dada los parámetros elegidos le es muy fácil al modelo diferenciar entre una clase y otra. La otra métrica que podría analizarse sería un IoU entre las secciones encontradas y las etiquetadas, pero para eso debería implementarse un algoritmo de ventana desplazable con un solapamiento, el cual no se ha llevado cabo en el presente trabajo.
 
 \subsection{Próximos Pasos}
 El desafío planteado revistió de una interesante dificultad, no sólo en lo que respecta al procesamiento y extracción de parámetros sobre señales de audio, sino también en el armado de un flujo de proceso completo. Es así que quedaron algunas ideas sin lograr implementarse, las cuales se incluyen como próximos pasos:
@@ -158,6 +166,7 @@ El desafío planteado revistió de una interesante dificultad, no sólo en lo qu
 	\item Uso de redes convolucionales sobre los imágenes de las curvas de las señales.
 	\item División de la clase masticación en dos subclases.
 	\item Uso de XAI (Explainable AI) para detectar cuales son las características faltantes de los errores de clasificación.
+	\item Implmentación de algoritmo de ventana desplazable para el cálculo del IoU del sistema completo.
 \end{itemize}
 
 
